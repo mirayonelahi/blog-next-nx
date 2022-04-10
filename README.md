@@ -106,4 +106,62 @@ export default About;
 
 Btw, if you’re not the terminal kind of person, you can also use the Nx Console VSCode plugin.
 
-If we now serve our app with npx nx serve site and navigate to /about, we should see something like the following:
+`npx nx serve site`
+
+## Understanding getStaticProps
+
+getStaticProps allow us to return props to our React component that’s going to be pre-rendered by Next.js. It gets the context object as a parameter and should return an object of the form.
+
+```js
+return {
+  props: {
+    /* your own properties */
+  },
+};
+```
+
+We can write our getStaticProps as follows:
+
+```js
+// apps/site/pages/about.tsx
+import { GetStaticProps } from 'next';
+...
+
+export interface AboutProps {
+  name: string;
+}
+...
+
+export const getStaticProps: GetStaticProps<AboutProps> = async (context) => {
+  return {
+    props: {
+      name: 'Juri'
+    },
+  };
+};
+```
+
+Note how we use TypeScript to type the return value of our function to match our AboutProps from the about.tsx component. You can find more info about how to use the getStaticProps and others with TypeScript on the official Next.js docs
+
+We can now use the props in our React component:
+
+```js
+export function About(props: AboutProps) {
+  return (
+    <div>
+      <h1>Welcome, {props.name}!</h1>
+    </div>
+  );
+}
+
+export const getStaticProps: GetStaticProps<AboutProps> = async (context) => {
+  ...
+}
+```
+
+If we want to create a blog, we’ll want to load pages dynamically. So we cannot really give them a static name as we did with our About page (about.tsx).
+
+`nx generate @nrwl/next:page --name="[slug]" --style=none --directory=articles`
+
+This generates a new articles folder with a new [slug].tsx file. The [slug] part is where Next.js understands it is dynamic and needs to be filled accordingly. Let’s also clean up the generated part a bit, changing the React component name to Article as well as the corresponding TS interface.
+So first of all let’s focus on the getStaticPaths function which we define as follows:
